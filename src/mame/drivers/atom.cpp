@@ -53,7 +53,7 @@ Hardware:   PPIA 8255
     thought this was a bad design and have modified their Atom's and dos rom
     to use a different memory area.
 
-    The atom driver in MESS uses the original memory area.
+    The atom driver in MAME uses the original memory area.
 
 
     http://www.xs4all.nl/~fjkraan/comp/atom/index.html
@@ -683,7 +683,7 @@ image_init_result atom_state::load_cart(device_image_interface &image, generic_s
 
 	if (size > 0x1000)
 	{
-		image.seterror(IMAGE_ERROR_UNSPECIFIED, "Unsupported ROM size");
+		image.seterror(image_error::INVALIDIMAGE, "Unsupported ROM size");
 		return image_init_result::FAIL;
 	}
 

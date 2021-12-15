@@ -132,7 +132,7 @@ Dip locations verified with Service Mode.
 #include "includes/crshrace.h"
 
 #include "cpu/m68000/m68000.h"
-#include "sound/ym2610.h"
+#include "sound/ymopn.h"
 #include "screen.h"
 #include "speaker.h"
 
@@ -523,7 +523,6 @@ ROM_START( crshrace2 )
 ROM_END
 
 
-#ifdef UNUSED_FUNCTION
 void crshrace_state::patch_code(uint16_t offset)
 {
 	// A hack which shows 3 player mode in code which is disabled
@@ -532,21 +531,20 @@ void crshrace_state::patch_code(uint16_t offset)
 	RAM[(offset + 2)/2] = 0x4e71;
 	RAM[(offset + 4)/2] = 0x4e71;
 }
-#endif
 
 
 void crshrace_state::init_crshrace()
 {
-	#if CRSHRACE_3P_HACK
+#if CRSHRACE_3P_HACK
 	patch_code(0x003778);
-	#endif
+#endif
 }
 
 void crshrace_state::init_crshrace2()
 {
-	#if CRSHRACE_3P_HACK
+#if CRSHRACE_3P_HACK
 	patch_code(0x003796);
-	#endif
+#endif
 }
 
 

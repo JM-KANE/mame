@@ -129,7 +129,7 @@ private:
 	coco_cartridge_line         m_nmi_line;
 	coco_cartridge_line         m_halt_line;
 public:
-	devcb_write_line        m_cart_callback;
+	devcb_write_line            m_cart_callback;
 	devcb_write_line            m_nmi_callback;
 	devcb_write_line            m_halt_callback;
 private:
@@ -231,5 +231,8 @@ private:
 void coco_cart_add_basic_devices(device_slot_interface &device);
 void coco_cart_add_fdcs(device_slot_interface &device);
 void coco_cart_add_multi_pak(device_slot_interface &device);
+void dragon_cart_add_basic_devices(device_slot_interface &device);
+void dragon_cart_add_fdcs(device_slot_interface &device);
+void dragon_cart_add_multi_pak(device_slot_interface &device);
 
 #endif // MAME_BUS_COCO_COCOCART_H
