@@ -52,9 +52,9 @@ public:
 		: genpin_class(mconfig, type, tag)
 		, m_maincpu(*this, "maincpu")
 		, m_nvram(*this, "nvram")
-		, m_io_keyboard(*this, "X%u", 0U)
-		, m_digits(*this, "digit%u", 0U)
-		, m_io_outputs(*this, "out%u", 0U)
+		, m_io_keyboard(*this, "X%d", 0U)
+		, m_digits(*this, "digit%d", 0U)
+		, m_io_outputs(*this, "out%d", 0U)
 		{ }
 
 	void nsm(machine_config &config);
@@ -82,11 +82,11 @@ private:
 
 	u8 m_cru_out[9]{};
 	u8 m_cru_in[3]{};
-	u8 m_cru_in_bit = 0;
-	u8 m_cru_overflow = 0;
-	u8 m_row = 0;
-	u8 m_np_cru = 0;
-	u8 m_np_sel = 0;
+	u8 m_cru_in_bit = 0U;
+	u8 m_cru_overflow = 0U;
+	u8 m_row = 0U;
+	u8 m_np_cru = 0U;
+	u8 m_np_sel = 0U;
 	bool m_e600_locked = false;
 	virtual void machine_reset() override;
 	virtual void machine_start() override;
@@ -475,6 +475,6 @@ ROM_START(gamesnsm)
 	ROM_LOAD("151597.ic604", 0x4000, 0x2000, CRC(5c8a3547) SHA1(843a56012227a61ff068bc1e14baf090d4a95fe1))
 ROM_END
 
-GAME(1985,  cosflnsm,  0,  nsm,  nsm, nsm_state, empty_init, ROT0, "NSM", "Cosmic Flash (NSM)", MACHINE_IS_SKELETON_MECHANICAL )
-GAME(1985,  firebird,  0,  nsm,  nsm, nsm_state, empty_init, ROT0, "NSM", "Hot Fire Birds",     MACHINE_IS_SKELETON_MECHANICAL )
-GAME(1985,  gamesnsm,  0,  nsm,  nsm, nsm_state, empty_init, ROT0, "NSM", "The Games (NSM)",    MACHINE_IS_SKELETON_MECHANICAL )
+GAME(1985,  cosflnsm,  0,  nsm,  nsm, nsm_state, empty_init, ROT0, "NSM", "Cosmic Flash (NSM)", MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME(1985,  firebird,  0,  nsm,  nsm, nsm_state, empty_init, ROT0, "NSM", "Hot Fire Birds",     MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME(1985,  gamesnsm,  0,  nsm,  nsm, nsm_state, empty_init, ROT0, "NSM", "The Games (NSM)",    MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )

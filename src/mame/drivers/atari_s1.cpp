@@ -76,9 +76,9 @@ public:
 		, m_maincpu(*this, "maincpu")
 		, m_p_ram(*this, "ram")
 		, m_dac(*this, "dac")
-		, m_switch(*this, "X%u", 0)
-		, m_digits(*this, "digit%u", 0U)
-		, m_player_lamps(*this, "text%u", 0U)
+		, m_io_keyboard(*this, "X%d", 0U)
+		, m_digits(*this, "digit%d", 0U)
+		, m_player_lamps(*this, "text%d", 0U)
 		, m_io_outputs(*this, "out%d", 0U)
 	{ }
 
@@ -114,18 +114,18 @@ private:
 
 	bool m_audio_en = false;
 	u8 m_timer_s[3]{};
-	u8 m_vol = 0;
-	u8 m_1080 = 0;
-	u8 m_1084 = 0;
-	u8 m_1088 = 0;
-	u8 m_108c = 0;
-	u8 m_bit6 = 0;
-	u8 m_t_c = 0;
+	u8 m_vol = 0U;
+	u8 m_1080 = 0U;
+	u8 m_1084 = 0U;
+	u8 m_1088 = 0U;
+	u8 m_108c = 0U;
+	u8 m_bit6 = 0U;
+	u8 m_t_c = 0U;
 	required_region_ptr<u8> m_p_prom;
 	required_device<cpu_device> m_maincpu;
 	required_shared_ptr<u8> m_p_ram;
 	required_device<dac_4bit_r2r_device> m_dac;
-	required_ioport_array<10> m_switch;
+	required_ioport_array<10> m_io_keyboard;
 	output_finder<78> m_digits;
 	output_finder<8> m_player_lamps;
 	output_finder<160> m_io_outputs;   // 32 solenoids + 128 lamps
@@ -393,7 +393,7 @@ void atari_s1_state::midearth_w(offs_t offset, u8 data)
 
 u8 atari_s1_state::switch_r(offs_t offset)
 {
-	return (BIT(m_switch[offset>>3]->read(), offset&7 ) << 7) | (BIT(m_bit6, 1) << 6) | 0x3f; // switch bit | BIT6_CLK
+	return (BIT(m_io_keyboard[offset>>3]->read(), offset&7 ) << 7) | (BIT(m_bit6, 1) << 6) | 0x3f; // switch bit | BIT6_CLK
 }
 
 TIMER_DEVICE_CALLBACK_MEMBER( atari_s1_state::nmi )
@@ -610,9 +610,9 @@ ROM_END
 } // Anonymous namespace
 
 
-GAME( 1976, atarians,  0,        atarians, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "The Atarians",             MACHINE_IS_SKELETON_MECHANICAL )
-GAME( 1977, time2000,  0,        atari_s1, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Time 2000",                MACHINE_IS_SKELETON_MECHANICAL )
-GAME( 1977, aavenger,  0,        atari_s1, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Airborne Avenger",         MACHINE_IS_SKELETON_MECHANICAL )
-GAME( 1978, midearth,  0,        midearth, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Middle Earth",             MACHINE_IS_SKELETON_MECHANICAL )
-GAME( 1978, mideartha, midearth, midearth, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Middle Earth (alternate)", MACHINE_IS_SKELETON_MECHANICAL )
-GAME( 1978, spcrider,  0,        atari_s1, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Space Riders",             MACHINE_IS_SKELETON_MECHANICAL )
+GAME( 1976, atarians,  0,        atarians, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "The Atarians",             MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME( 1977, time2000,  0,        atari_s1, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Time 2000",                MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME( 1977, aavenger,  0,        atari_s1, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Airborne Avenger",         MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME( 1978, midearth,  0,        midearth, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Middle Earth",             MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME( 1978, mideartha, midearth, midearth, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Middle Earth (alternate)", MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME( 1978, spcrider,  0,        atari_s1, atari_s1, atari_s1_state, empty_init, ROT0, "Atari", "Space Riders",             MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )

@@ -7,37 +7,65 @@
 
 #include "strformat.h"
 
-const char *fs_meta_data::entry_name(fs_meta_name name)
+#include <optional>
+
+namespace fs {
+
+const char *meta_data::entry_name(meta_name name)
 {
 	switch(name) {
-	case fs_meta_name::basic: return "basic";
-	case fs_meta_name::creation_date: return "creation_date";
-	case fs_meta_name::length: return "length";
-	case fs_meta_name::loading_address: return "loading_address";
-	case fs_meta_name::locked: return "locked";
-	case fs_meta_name::modification_date: return "modification_date";
-	case fs_meta_name::name: return "name";
-	case fs_meta_name::os_minimum_version: return "os_minimum_version";
-	case fs_meta_name::os_version: return "os_version";
-	case fs_meta_name::rsrc_length: return "rsrc_length";
-	case fs_meta_name::sequential: return "sequential";
-	case fs_meta_name::size_in_blocks: return "size_in_blocks";
+	case meta_name::basic: return "basic";
+	case meta_name::creation_date: return "creation_date";
+	case meta_name::length: return "length";
+	case meta_name::loading_address: return "loading_address";
+	case meta_name::locked: return "locked";
+	case meta_name::modification_date: return "modification_date";
+	case meta_name::name: return "name";
+	case meta_name::os_minimum_version: return "os_minimum_version";
+	case meta_name::os_version: return "os_version";
+	case meta_name::rsrc_length: return "rsrc_length";
+	case meta_name::sequential: return "sequential";
+	case meta_name::size_in_blocks: return "size_in_blocks";
+	case meta_name::file_type: return "file_type";
+	case meta_name::ascii_flag: return "ascii_flag";
+	case meta_name::owner_id: return "owner_id";
+	case meta_name::attributes: return "attributes";
 	}
 	return "";
 }
 
-std::string fs_meta::to_string(fs_meta_type type, const fs_meta &m)
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+meta_type meta_value::type() const
 {
-	switch(type) {
-	case fs_meta_type::string: return m.as_string();
-	case fs_meta_type::number: return util::string_format("0x%x", m.as_number());
-	case fs_meta_type::flag:   return m.as_flag() ? "t" : "f";
-	case fs_meta_type::date:   {
-		auto dt = m.as_date();
-		return util::string_format("%04d-%02d-%02d %02d:%02d:%02d",
-								   dt.year, dt.month, dt.day_of_month,
-								   dt.hour, dt.minute, dt.second);
-	}
-	}
-	return std::string("");
+	std::optional<meta_type> result;
+	std::visit(
+			overloaded{
+				[&result] (const std::string &)              { result = meta_type::string; },
+				[&result] (std::uint64_t)                    { result = meta_type::number; },
+				[&result] (bool)                             { result = meta_type::flag; },
+				[&result] (const util::arbitrary_datetime &) { result = meta_type::date; } },
+			value);
+	return *result;
 }
+
+std::string meta_value::to_string() const
+{
+	std::string result;
+	std::visit(
+			overloaded{
+				[&result] (const std::string &val)              { result = val; },
+				[&result] (std::uint64_t val)                   { result = util::string_format("0x%x", val); },
+				[&result] (bool val)                            { result = val ? "t" : "f"; },
+				[&result] (const util::arbitrary_datetime &val)
+				{
+					result = util::string_format("%04d-%02d-%02d %02d:%02d:%02d",
+						val.year, val.month, val.day_of_month,
+						val.hour, val.minute, val.second);
+				} },
+			value);
+	return result;
+}
+
+} // namespace fs

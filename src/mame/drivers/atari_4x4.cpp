@@ -38,7 +38,7 @@ public:
 	atari_4x4_state(const machine_config &mconfig, device_type type, const char *tag)
 		: genpin_class(mconfig, type, tag)
 		, m_maincpu(*this, "maincpu")
-		, m_digits(*this, "digit%u", 0U)
+		, m_digits(*this, "digit%d", 0U)
 		, m_io_outputs(*this, "out%d", 0U)
 	{ }
 
@@ -117,4 +117,4 @@ ROM_END
 
 } // Anonymous namespace
 
-GAME( 1982, fourx4, 0, fourx4, atari_4x4, atari_4x4_state, empty_init, ROT0, "Atari", "4x4", MACHINE_IS_SKELETON_MECHANICAL )
+GAME( 1982, fourx4, 0, fourx4, atari_4x4, atari_4x4_state, empty_init, ROT0, "Atari", "4x4", MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )

@@ -989,6 +989,12 @@ void stv_state::init_nameclv3()
 	init_stv();
 }
 
+void stv_state::init_stv_us()
+{
+	init_stv();
+	m_smpc_hle->set_region_code(4); // 4 - USA, configured via jumpers, should be added to input ports as DIPSW ?
+}
+
 void stv_state::stv_mem(address_map &map)
 {
 	map(0x00000000, 0x0007ffff).rom().mirror(0x20000000).region("bios", 0); // bios
@@ -1129,7 +1135,7 @@ void stv_state::stv(machine_config &config)
 
 	SMPC_HLE(config, m_smpc_hle, XTAL(4'000'000));
 	m_smpc_hle->set_screen_tag("screen");
-	m_smpc_hle->set_region_code(0);
+	m_smpc_hle->set_region_code(1); // 1 - Japan, configured via jumpers, should be added to input ports as DIPSW ?
 	m_smpc_hle->pdr1_in_handler().set(FUNC(stv_state::pdr1_input_r));
 	m_smpc_hle->pdr2_in_handler().set(FUNC(stv_state::pdr2_input_r));
 	m_smpc_hle->pdr1_out_handler().set(FUNC(stv_state::pdr1_output_w));
@@ -2965,7 +2971,6 @@ ROM_START( sfish2 )
 
 	ROM_REGION32_BE( 0x080000, "bios", 0 ) /* SH2 code */
 	ROM_LOAD16_WORD_SWAP( "epr18343.bin",   0x000000, 0x080000, CRC(48e2eecf) SHA1(a38bfbd5f279525e413b18b5ed3f37f6e9e31cdc) ) /* sport fishing 2 bios */
-	ROM_FILL( 0x809c, 1, 'U' ) // TODO: hardcoded country code???
 
 	ROM_REGION32_BE( 0x3000000, "cart", ROMREGION_ERASE00 ) /* SH2 code */
 	ROM_LOAD16_BYTE( "epr-18427.ic13",  0x0000001, 0x0100000, CRC(3f25bec8) SHA1(43a5342b882d5aec0f35a8777cb475659f43b1c4) )
@@ -2986,7 +2991,6 @@ ROM_START( sfish2j )
 
 	ROM_REGION32_BE( 0x080000, "bios", 0 ) /* SH2 code */
 	ROM_LOAD16_WORD_SWAP( "epr18343.bin",   0x000000, 0x080000, CRC(48e2eecf) SHA1(a38bfbd5f279525e413b18b5ed3f37f6e9e31cdc) ) /* sport fishing 2 bios */
-	ROM_FILL( 0x809c, 1, 'J' ) // TODO: hardcoded country code???
 
 	ROM_REGION32_BE( 0x3000000, "cart", ROMREGION_ERASE00 ) /* SH2 code */
 	ROM_LOAD16_BYTE( "epr18344.a",      0x0000001, 0x0100000, CRC(5a7de018) SHA1(88e0c2a9a9d4ebf699878c0aa9737af85f95ccf8) )
@@ -3786,6 +3790,33 @@ ROM_START( fanzonem )
 	ROM_LOAD16_WORD_SWAP( "mpr-21444.ic8",    0x1c00000, 0x0400000, CRC(a82ff33b) SHA1(9559ee4cf1ec487c3847df40d10aa2a4eaee97d2) )
 ROM_END
 
+ROM_START( yattrmnp ) // ROM board stickered 837-13598
+	STV_BIOS
+
+	ROM_REGION32_BE( 0x3000000, "cart", ROMREGION_ERASE00 ) /* SH2 code */
+	ROM_LOAD16_WORD_SWAP( "epr-21122.ic13",    0x0000000, 0x0080000, CRC(49f56e32) SHA1(7d8bdaaf3a4edd9df90becc3ec5e94a69bb29ffc) ) // ST M27C4002-12F1
+	ROM_LOAD16_WORD_SWAP( "mpr-21125.ic02",    0x0400000, 0x0400000, CRC(40f5f119) SHA1(68fc634734ab05b54ff93256259969f16e26807d) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21130.ic03",    0x0800000, 0x0400000, CRC(84cb4e9c) SHA1(675464b0fdf80a3d6e39292e56528e906d388d3c) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21126.ic04",    0x0c00000, 0x0400000, CRC(36095649) SHA1(cd06471943380d80887e389e04008d78c58d14b3) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21131.ic05",    0x1000000, 0x0400000, CRC(b1c860d8) SHA1(474539f86369f10df5f0e51fd5b44febbc846f98) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21127.ic06",    0x1400000, 0x0400000, CRC(f55901d7) SHA1(ab80d82b6707929af9cc5615319bc5b336c13f4a) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21132.ic07",    0x1800000, 0x0400000, CRC(809b1b0e) SHA1(8404a03624ba735cc796a38a2b2b96bf9e37f5ee) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21128.ic08",    0x1c00000, 0x0400000, CRC(c2e2f72e) SHA1(299c60a74caf3ec6641b6369c823059ef2fbdc5e) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21133.ic09",    0x2000000, 0x0400000, CRC(2dc21956) SHA1(6fd7ab435127286a7b212e30b1f29a6f3fbd018b) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21129.ic10",    0x2400000, 0x0400000, CRC(997d67bd) SHA1(f588b4391982df4afe60fe8bf739cd510f98caa0) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21124.ic11",    0x2800000, 0x0400000, CRC(10f073ac) SHA1(8c16d8ad9c435d44a7b4dd327cd44ffd2f7e895c) )
+	ROM_LOAD16_WORD_SWAP( "mpr-21123.ic12",    0x2c00000, 0x0400000, CRC(491b9166) SHA1(f1d5e5b7bef4fc99862b1b8178759e96ba4cb29c) )
+
+	// CGAL MAIN BD 837-12530. This game seems to use it as an I/O board (see strings in ROM), though the number of unpopulated spaces and the 'MAIN BD' seem to point to it being capable of much more
+	// 834-13246-01 YATTERMAN PLUS sticker
+	// main populated components: MC68360FE25C QUICC with integrated CPU32+ core, 32 MHz and 20 MHz XTALs, 315-6052 MACH111, 315-5649 I/O custom, 315-5296 I/O custom, 2 batteries
+	// main unpopulated components (as per PCB etches): 68EC000, 315-5687 SCSP, 2x 16M EPROMs, 2x HM514270 RAMs, MB8421, GAL16V8, 45.1584 MHz XTAL, TA8221 amplifier, a second 315-5296 I/O custom, COM20020 ULANC and much more
+	ROM_REGION( 0x20000, "io_cpu", 0 )
+	ROM_LOAD( "epr-21121.bin", 0x00000, 0x20000, CRC(d615bce0) SHA1(09c81e3ee1d2ff22c52a20158d6ad09962910c65) )
+
+	ROM_REGION( 0x200, "plds", ROMREGION_ERASE00 )
+	ROM_LOAD( "315-5930.ic19", 0x000, 0x117, CRC(d1201563) SHA1(a133b07240c0a4eb8bae4b438d98fc6148fb7f4f) )
+ROM_END
 
 GAME( 1996, stvbios,   0,       stv_slot, stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "ST-V Bios", MACHINE_IS_BIOS_ROOT )
 
@@ -3904,13 +3935,14 @@ GAME( 1998, twsoc98,   twcup98, stv_5881, stv,      stv_state,   init_twcup98,  
 
 /* Gives I/O errors */
 GAME( 1996, magzun,    stvbios, magzun,   stv,      stv_state,   init_magzun,     ROT0,   "Sega",                         "Magical Zunou Power (J 961031 V1.000)", MACHINE_NOT_WORKING | MACHINE_NODEVICE_MICROPHONE )
+GAME( 1998, yattrmnp,  stvbios, stv,      stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "Yatterman Plus (J 981006 V1.000)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS ) // needs emulation of the medal specific hardware
 GAME( 1998, choroqhr,  stvbios, stv,      stv,      stv_state,   init_stv,        ROT0,   "Sega / Takara",                "Choro Q Hyper Racing 5 (J 981230 V1.000)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS )
 GAME( 1999, fanzonem,  stvbios, stv,      stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "Fantasy Zone (medal game, REV.A) (J 990202 V1.000)", MACHINE_NOT_WORKING ) // require SH2's SCI serial port emulated, to communicate with coin/medal-related I/O board
 GAME( 2000, sackids,   stvbios, stv,      stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "Soreyuke Anpanman Crayon Kids (J 001026 V1.000)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS )
 GAME( 2001, dfeverg,   stvbios, stv,      stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "Dancing Fever Gold (J 000821 V2.001)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS )
 
 /* CD games */
-GAME( 1995, sfish2,    0,       stvcd,    stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "Sport Fishing 2 (UET 951106 V1.10e)", MACHINE_IMPERFECT_SOUND | MACHINE_NOT_WORKING | MACHINE_NODEVICE_LAN )
+GAME( 1995, sfish2,    0,       stvcd,    stv,      stv_state,   init_stv_us,     ROT0,   "Sega",                         "Sport Fishing 2 (UET 951106 V1.10e)", MACHINE_IMPERFECT_SOUND | MACHINE_NOT_WORKING | MACHINE_NODEVICE_LAN )
 GAME( 1995, sfish2j,   sfish2,  stvcd,    stv,      stv_state,   init_stv,        ROT0,   "Sega",                         "Sport Fishing 2 (J 951201 V1.100)", MACHINE_IMPERFECT_SOUND | MACHINE_NOT_WORKING | MACHINE_NODEVICE_LAN )
 
 /*

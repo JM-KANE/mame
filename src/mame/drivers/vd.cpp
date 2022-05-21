@@ -41,8 +41,8 @@ public:
 	vd_state(const machine_config &mconfig, device_type type, const char *tag)
 		: genpin_class(mconfig, type, tag)
 		, m_maincpu(*this, "maincpu")
-		, m_digits(*this, "digit%u", 0U)
-		, m_io_outputs(*this, "out%u", 0U)
+		, m_digits(*this, "digit%d", 0U)
+		, m_io_outputs(*this, "out%d", 0U)
 	{ }
 
 	void vd(machine_config &config);
@@ -60,9 +60,9 @@ private:
 	void io_map(address_map &map);
 	void mem_map(address_map &map);
 
-	bool m_ready = 0;
-	u8 m_t_c = 0;
-	u8 m_game = 0;
+	bool m_ready = false;
+	u8 m_t_c = 0U;
+	u8 m_game = 0U;
 	u8 m_segment[5]{};
 	virtual void machine_start() override;
 	virtual void machine_reset() override;
@@ -355,5 +355,5 @@ ROM_END
 
 } // Anonymous namespace
 
-GAME(1986, break86,  0,    vd,  break86,  vd_state, init_0, ROT0,  "Video Dens", "Break '86", MACHINE_IS_SKELETON_MECHANICAL)
-GAME(1986, papillon, 0,    vd,  papillon, vd_state, init_1, ROT0,  "Video Dens", "Papillon",  MACHINE_IS_SKELETON_MECHANICAL)
+GAME(1986, break86,  0,    vd,  break86,  vd_state, init_0, ROT0,  "Video Dens", "Break '86", MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
+GAME(1986, papillon, 0,    vd,  papillon, vd_state, init_1, ROT0,  "Video Dens", "Papillon",  MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )

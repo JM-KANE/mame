@@ -94,7 +94,7 @@ void midiin_device::device_reset()
     device_timer
 -------------------------------------------------*/
 
-void midiin_device::device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr)
+void midiin_device::device_timer(emu_timer &timer, device_timer_id id, int param)
 {
 	if (id == 0)
 	{
@@ -119,8 +119,15 @@ void midiin_device::device_timer(emu_timer &timer, device_timer_id id, int param
 				// if it's time to process the current event, do it and advance
 				if (curtime >= event->time())
 				{
-					for (auto &curbyte : event->data())
+					const u8 force_channel = m_config->read();
+
+					for (u8 curbyte : event->data())
+					{
+						if (force_channel <= 15 && curbyte >= 0x80 && curbyte < 0xf0)
+							curbyte = (curbyte & 0xf0) | force_channel;
+
 						xmit_char(curbyte);
+					}
 					event = m_sequence.advance_event();
 				}
 
@@ -166,7 +173,7 @@ image_init_result midiin_device::call_load()
 		// if the parsing succeeds, schedule the start to happen at least
 		// 10 seconds after starting to allow the keyboards to initialize
 		// TODO: this should perhaps be a driver-configurable parameter?
-		if (m_sequence.parse(reinterpret_cast<u8 const *>(ptr()), length(), m_config->read()))
+		if (m_sequence.parse(image_core_file(), length()))
 		{
 			m_sequence_start = std::max(machine().time(), attotime(10, 0));
 			m_timer->adjust(attotime::zero);
@@ -266,8 +273,8 @@ static constexpr u32 fourcc_le(char const *string)
 //  midi_parser - constructor
 //-------------------------------------------------
 
-midiin_device::midi_parser::midi_parser(u8 const *data, u32 length, u32 offset) :
-	m_data(data),
+midiin_device::midi_parser::midi_parser(util::random_read &stream, u32 length, u32 offset) :
+	m_stream(stream),
 	m_length(length),
 	m_offset(offset)
 {
@@ -283,7 +290,7 @@ midiin_device::midi_parser::midi_parser(u8 const *data, u32 length, u32 offset) 
 midiin_device::midi_parser midiin_device::midi_parser::subset(u32 length)
 {
 	check_bounds(length);
-	midi_parser result(m_data + m_offset, length, 0);
+	midi_parser result(m_stream, m_offset + length, m_offset);
 	m_offset += length;
 	return result;
 }
@@ -317,6 +324,91 @@ u32 midiin_device::midi_parser::variable()
 			return result;
 	}
 	throw error("Invalid variable length field");
+}
+
+
+//-------------------------------------------------
+//  byte - read 8 bits of data
+//-------------------------------------------------
+
+u8 midiin_device::midi_parser::byte()
+{
+	check_bounds(1);
+
+	u8 result = 0;
+	std::size_t actual = 0;
+	if (m_stream.read_at(m_offset, &result, 1, actual) || actual != 1)
+		throw error("Error reading data");
+	m_offset++;
+	return result;
+}
+
+
+//-------------------------------------------------
+//  word_be - read 16 bits of big-endian data
+//-------------------------------------------------
+
+u16 midiin_device::midi_parser::word_be()
+{
+	check_bounds(2);
+
+	u16 result = 0;
+	std::size_t actual = 0;
+	if (m_stream.read_at(m_offset, &result, 2, actual) || actual != 2)
+		throw error("Error reading data");
+	m_offset += 2;
+	return big_endianize_int16(result);
+}
+
+
+//-------------------------------------------------
+//  triple_be - read 24 bits of big-endian data
+//-------------------------------------------------
+
+u32 midiin_device::midi_parser::triple_be()
+{
+	check_bounds(3);
+
+	u32 result = 0;
+	std::size_t actual = 0;
+	if (m_stream.read_at(m_offset, &result, 3, actual) || actual != 3)
+		throw error("Error reading data");
+	m_offset += 3;
+	return big_endianize_int32(result) >> 8;
+}
+
+
+//-------------------------------------------------
+//  dword_be - read 32 bits of big-endian data
+//-------------------------------------------------
+
+u32 midiin_device::midi_parser::dword_be()
+{
+	check_bounds(4);
+
+	u32 result = 0;
+	std::size_t actual = 0;
+	if (m_stream.read_at(m_offset, &result, 4, actual) || actual != 4)
+		throw error("Error reading data");
+	m_offset += 4;
+	return big_endianize_int32(result);
+}
+
+
+//-------------------------------------------------
+//  dword_le - read 32 bits of little-endian data
+//-------------------------------------------------
+
+u32 midiin_device::midi_parser::dword_le()
+{
+	check_bounds(4);
+
+	u32 result = 0;
+	std::size_t actual = 0;
+	if (m_stream.read_at(m_offset, &result, 4, actual) || actual != 4)
+		throw error("Error reading data");
+	m_offset += 4;
+	return little_endianize_int32(result);
 }
 
 
@@ -357,20 +449,20 @@ midiin_device::midi_event &midiin_device::midi_sequence::event_at(u32 tick)
 //  parse - parse a MIDI sequence from a buffer
 //-------------------------------------------------
 
-bool midiin_device::midi_sequence::parse(u8 const *data, u32 length, u8 force_channel)
+bool midiin_device::midi_sequence::parse(util::random_read &stream, u32 length)
 {
 	// start with an empty list of events
 	m_list.clear();
 
 	// by default parse the whole data
-	midi_parser buffer(data, length, 0);
+	midi_parser buffer(stream, length, 0);
 
 	// catch errors to make parsing easier
 	try
 	{
 		// if not a RIFF-encoed MIDI, just parse as-is
 		if (buffer.dword_le() != fourcc_le("RIFF"))
-			parse_midi_data(buffer.reset(), force_channel);
+			parse_midi_data(buffer.reset());
 		else
 		{
 			// check the RIFF type and size
@@ -388,7 +480,7 @@ bool midiin_device::midi_sequence::parse(u8 const *data, u32 length, u8 force_ch
 				midi_parser chunk = riffdata.subset(chunksize);
 				if (chunktype == fourcc_le("data"))
 				{
-					parse_midi_data(chunk, force_channel);
+					parse_midi_data(chunk);
 					break;
 				}
 			}
@@ -396,8 +488,9 @@ bool midiin_device::midi_sequence::parse(u8 const *data, u32 length, u8 force_ch
 		m_iterator = m_list.begin();
 		return true;
 	}
-	catch (midi_parser::error &)
+	catch (midi_parser::error &err)
 	{
+		osd_printf_error("MIDI file error: %s\n", err.description());
 		m_list.clear();
 		m_iterator = m_list.begin();
 		return false;
@@ -410,7 +503,7 @@ bool midiin_device::midi_sequence::parse(u8 const *data, u32 length, u8 force_ch
 //  into tracks
 //-------------------------------------------------
 
-void midiin_device::midi_sequence::parse_midi_data(midi_parser &buffer, u8 force_channel)
+void midiin_device::midi_sequence::parse_midi_data(midi_parser &buffer)
 {
 	// scan for syntactic correctness, and to find global state
 	u32 headertype = buffer.dword_le();
@@ -447,7 +540,7 @@ void midiin_device::midi_sequence::parse_midi_data(midi_parser &buffer, u8 force
 
 		// parse the track data
 		midi_parser trackdata = buffer.subset(chunksize);
-		u32 numticks = parse_track_data(trackdata, curtick, force_channel);
+		u32 numticks = parse_track_data(trackdata, curtick);
 		if (format == 2)
 			curtick += numticks;
 	}
@@ -476,7 +569,7 @@ void midiin_device::midi_sequence::parse_midi_data(midi_parser &buffer, u8 force
 //  add it to the buffer
 //-------------------------------------------------
 
-u32 midiin_device::midi_sequence::parse_track_data(midi_parser &buffer, u32 start_tick, u8 force_channel)
+u32 midiin_device::midi_sequence::parse_track_data(midi_parser &buffer, u32 start_tick)
 {
 	u32 curtick = start_tick;
 	u8 last_type = 0;
@@ -501,10 +594,6 @@ u32 midiin_device::midi_sequence::parse_track_data(midi_parser &buffer, u32 star
 		if (eclass != 15)
 		{
 			// simple events: all but program change and aftertouch have a second parameter
-			if (force_channel <= 15)
-			{
-				type = (type & 0xf0) | force_channel;
-			}
 			event.append(type);
 			event.append(buffer.byte());
 			if (eclass != 12 && eclass != 13)
@@ -514,6 +603,7 @@ u32 midiin_device::midi_sequence::parse_track_data(midi_parser &buffer, u32 star
 		{
 			// handle non-meta events
 			midi_parser eventdata = buffer.subset(buffer.variable());
+			event.append(type);
 			while (!eventdata.eob())
 				event.append(eventdata.byte());
 		}

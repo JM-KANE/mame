@@ -28456,6 +28456,17 @@ license:CC0
 		</part>
 	</software>
 
+	<software name="robocop">
+		<description>Robocop (prototype)</description>
+		<year>2002</year>
+		<publisher>Titus</publisher>
+		<part name="cart" interface="gba_cart">
+			<dataarea name="rom" size="8388608">
+				<rom name="robocop (prototype).bin" size="8388608" crc="282e6408" sha1="0c6b28da8ad9b889d765e65e081848e410095406"/>
+			</dataarea>
+		</part>
+	</software>
+
 	<software name="robopn2c">
 		<description>Robopon 2 - Cross Version (USA)</description>
 		<year>2002</year>
@@ -38056,8 +38067,20 @@ license:CC0
 		</part>
 	</software>
 
-	<!-- Released by the developer as a digital download on the web. -->
 	<software name="worldreb">
+		<description>World Reborn (USA)</description>
+		<year>2015</year>
+		<publisher>Piko Interactive</publisher>
+		<info name="release" value="20151106"/>
+		<part name="cart" interface="gba_cart">
+			<dataarea name="rom" size="4194304">
+				<rom name="world reborn.bin" size="4194304" crc="eefb32ff" sha1="c7ec2f8d7d3dec40a893cdfe2a41a8ed43ed71c4"/>
+			</dataarea>
+		</part>
+	</software>
+
+	<!-- Released by the developer as a digital download on the web. -->
+	<software name="worldrebp" cloneof="worldreb">
 		<description>World Reborn (USA, prototype)</description>
 		<year>2004</year>
 		<publisher>Destination Software</publisher>

@@ -43,6 +43,15 @@ void nes_state::machine_start()
 {
 	address_space &space = m_maincpu->space(AS_PROGRAM);
 
+	// Fill main RAM with an arbitrary pattern (alternating 0x00/0xff) for software that depends on its contents at boot up (tsk tsk!)
+	// The fill value is a compromise since certain games malfunction with zero-filled memory, others with one-filled memory
+	// Examples: Minna no Taabou won't boot with all 0x00, Sachen's Dancing Block won't boot with all 0xff, Terminator 2 skips its copyright screen with all 0x00
+	for (int i = 0; i < 0x800; i += 2)
+	{
+		m_mainram[i] = 0x00;
+		m_mainram[i + 1] = 0xff;
+	}
+
 	// CIRAM (Character Internal RAM)
 	// NES has 2KB of internal RAM which can be used to fill the 4x1KB banks of PPU RAM at $2000-$2fff
 	// Line A10 is exposed to the carts, so that games can change CIRAM mapping in PPU (we emulate this with the set_nt_mirroring
@@ -59,7 +68,7 @@ void nes_state::machine_start()
 		space.install_write_handler(0x4100, 0x5fff, write8sm_delegate(*m_cartslot, FUNC(nes_cart_slot_device::write_l)));
 		space.install_read_handler(0x6000, 0x7fff, read8sm_delegate(*m_cartslot, FUNC(nes_cart_slot_device::read_m)));
 		space.install_write_handler(0x6000, 0x7fff, write8sm_delegate(*m_cartslot, FUNC(nes_cart_slot_device::write_m)));
-		for(int i=0; i<4; i++)
+		for(int i = 0; i < 4; i++)
 			space.install_read_bank(0x8000 + 0x2000*i, 0x9fff + 0x2000*i, m_prg_bank[i]);
 		space.install_write_handler(0x8000, 0xffff, write8sm_delegate(*m_cartslot, FUNC(nes_cart_slot_device::write_h)));
 
@@ -80,7 +89,8 @@ void nes_state::machine_start()
 			BMC_800IN1,
 			BMC_8157,
 			BMC_970630C,
-			BMC_GOLD150,
+			BMC_DS927,
+			BMC_KC885,
 			BMC_TELETUBBIES,
 			BMC_VT5201,
 			BTL_PALTHENA,

@@ -43,6 +43,8 @@ TODO:
 #include "machine/timer.h"
 #include "spirit76.lh"
 
+namespace {
+
 class spirit76_state : public genpin_class
 {
 public:
@@ -65,9 +67,9 @@ private:
 	u8 sw_r();
 	void maincpu_map(address_map &map);
 
-	u8 m_t_c = 0;
-	u8 m_strobe = 0;
-	u8 m_segment = 0;
+	u8 m_t_c = 0U;
+	u8 m_strobe = 0U;
+	u8 m_segment = 0U;
 	u8 m_last_solenoid[2]{ };
 	virtual void machine_start() override;
 	virtual void machine_reset() override;
@@ -334,6 +336,9 @@ void spirit76_state::machine_start()
 
 void spirit76_state::machine_reset()
 {
+	for (u8 i = 0; i < m_io_outputs.size(); i++)
+		m_io_outputs[i] = 0;
+
 	m_t_c = 0;
 	m_strobe = 0;
 	m_segment = 0;
@@ -377,5 +382,6 @@ ROM_START(spirit76)
 	ROM_LOAD_NIB_HIGH("3g.bin", 0x0800, 0x0200, CRC(ae7192cd) SHA1(9ba76e81b8603163c22f47f1a99da310b4325e84))
 ROM_END
 
+} // Anonymous namespace
 
-GAME( 1975, spirit76, 0, spirit76, spirit76, spirit76_state, empty_init, ROT0, "Mirco", "Spirit of 76", MACHINE_IS_SKELETON_MECHANICAL )
+GAME( 1975, spirit76, 0, spirit76, spirit76, spirit76_state, empty_init, ROT0, "Mirco", "Spirit of 76", MACHINE_IS_SKELETON_MECHANICAL | MACHINE_SUPPORTS_SAVE )
