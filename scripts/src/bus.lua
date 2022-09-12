@@ -1024,6 +1024,8 @@ if (BUSES["CBMIEC"]~=null) then
 		MAME_DIR .. "src/devices/bus/cbmiec/fd2000.h",
 		MAME_DIR .. "src/devices/bus/cbmiec/interpod.cpp",
 		MAME_DIR .. "src/devices/bus/cbmiec/interpod.h",
+		MAME_DIR .. "src/devices/bus/cbmiec/mps1200.cpp",
+		MAME_DIR .. "src/devices/bus/cbmiec/mps1200.h",
 		MAME_DIR .. "src/devices/bus/cbmiec/serialbox.cpp",
 		MAME_DIR .. "src/devices/bus/cbmiec/serialbox.h",
 		MAME_DIR .. "src/devices/bus/cbmiec/vic1515.cpp",
@@ -3132,6 +3134,8 @@ if (BUSES["NES_CTRL"]~=null) then
 		MAME_DIR .. "src/devices/bus/nes_ctrl/powerpad.h",
 		MAME_DIR .. "src/devices/bus/nes_ctrl/rob.cpp",
 		MAME_DIR .. "src/devices/bus/nes_ctrl/rob.h",
+		MAME_DIR .. "src/devices/bus/nes_ctrl/sharpcass.cpp",
+		MAME_DIR .. "src/devices/bus/nes_ctrl/sharpcass.h",
 		MAME_DIR .. "src/devices/bus/nes_ctrl/snesadapter.cpp",
 		MAME_DIR .. "src/devices/bus/nes_ctrl/snesadapter.h",
 		MAME_DIR .. "src/devices/bus/nes_ctrl/suborkey.cpp",
@@ -4946,3 +4950,18 @@ if (BUSES["PC8801"]~=null) then
 		MAME_DIR .. "src/devices/bus/pc8801/jmbx1.h",
 	}
 end
+
+---------------------------------------------------
+--
+--@src/devices/bus/mtu130/board.h,BUSES["MTU130"] = true
+---------------------------------------------------
+
+if (BUSES["MTU130"]~=null) then
+	files {
+		MAME_DIR .. "src/devices/bus/mtu130/board.cpp",
+		MAME_DIR .. "src/devices/bus/mtu130/board.h",
+		MAME_DIR .. "src/devices/bus/mtu130/datamover.cpp",
+		MAME_DIR .. "src/devices/bus/mtu130/datamover.h",
+	}
+ end
+
